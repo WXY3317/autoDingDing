@@ -78,12 +78,7 @@ class PushCoreService : JPushMessageService() {
             if (ifLock.not()){
                 //TODO turn off screen
             }
-        } else if (MSG_MANUAL_SIGN == customMessage.message){
-            wakePhone(context)
-            launchCommand {
-                intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_MANUAL_SIGN)
-                context.startActivity(intent)
-            }
+
         }
         super.onMessage(context, customMessage)
     }
@@ -132,7 +127,6 @@ class PushCoreService : JPushMessageService() {
         const val MSG_STATUS_REPORT = "statusReport"
         const val MSG_SCREEN_SHOT = "screenShot"
         const val MSG_SLEEP = "goToSleep"
-        const val MSG_MANUAL_SIGN = "manualSign"
         const val MSG_REPLY = "reply"
     }
 }

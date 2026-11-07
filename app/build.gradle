@@ -21,12 +21,25 @@ def jpushValue = { String name ->
 def jpushAppKey = jpushValue('JPUSH_APPKEY')
 def jpushMasterSecret = jpushValue('JPUSH_MASTER_SECRET')
 
+// Optional defaults for private builds. Never commit mail.local.properties.
+def mailProperties = new Properties()
+def mailFile = rootProject.file('mail.local.properties')
+if (mailFile.exists()) {
+    mailFile.withInputStream { mailProperties.load(it) }
+}
+def defaultSender = mailProperties.getProperty('sender.email', '')
+def defaultAuth = mailProperties.getProperty('sender.auth', '')
+def defaultReceiver = mailProperties.getProperty('receiver.email', defaultSender)
+
 android {
     compileSdk 33
     defaultConfig {
         applicationId "xcom.abc.autoding"
         buildConfigField 'String', 'JPUSH_APPKEY', groovy.json.JsonOutput.toJson(jpushAppKey)
         buildConfigField 'String', 'JPUSH_MASTER_SECRET', groovy.json.JsonOutput.toJson(jpushMasterSecret)
+        buildConfigField 'String', 'DEFAULT_MAIL_SENDER', groovy.json.JsonOutput.toJson(defaultSender)
+        buildConfigField 'String', 'DEFAULT_MAIL_AUTH', groovy.json.JsonOutput.toJson(defaultAuth)
+        buildConfigField 'String', 'DEFAULT_MAIL_RECEIVER', groovy.json.JsonOutput.toJson(defaultReceiver)
         minSdkVersion 23
         targetSdkVersion 33
         versionCode 18

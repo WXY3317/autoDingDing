@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.fragment.PushFragment">
-
+    android:background="@color/white">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clHeader"
         android:layout_width="match_parent"
@@ -41,83 +38,87 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <TextView
-        android:id="@+id/tvSenderEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="发件163邮箱地址，如123456@163.com"
-        app:layout_constraintTop_toBottomOf="@id/clHeader"/>
-    <EditText
-        android:id="@+id/etSenderEmailAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:layout_marginTop="8dp"
-        android:hint="发件163邮箱地址，如123456@163.com"
-        android:inputType="textEmailAddress"
-        style="@style/Widget.AppCompat.EditText"
-        app:layout_constraintTop_toBottomOf="@id/tvSenderEmail"/>
-    <TextView
-        android:id="@+id/tvSenderAuth"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="发件163邮箱授权码，需在163邮箱设置中开启SMTP服务后获取"
-        app:layout_constraintTop_toBottomOf="@id/etSenderEmailAddress"/>
-    <EditText
-        android:id="@+id/etSenderEmailAuth"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:layout_marginTop="8dp"
-        android:hint="发件163邮箱授权码，需在163邮箱设置中开启SMTP服务后获取"
-        android:inputType="textPassword"
-        style="@style/Widget.AppCompat.EditText"
-        app:layout_constraintTop_toBottomOf="@id/tvSenderAuth"
-        tools:ignore="TextFields" />
-    <TextView
-        android:id="@+id/tvReceiverEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="收件邮箱地址，可以与发件邮箱相同"
-        app:layout_constraintTop_toBottomOf="@id/etSenderEmailAuth"/>
-    <EditText
-        android:id="@+id/etReceiverEmailAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:layout_marginTop="8dp"
-        android:hint="收件邮箱地址，可以与发件邮箱相同"
-        android:inputType="textEmailAddress"
-        style="@style/Widget.AppCompat.EditText"
-        app:layout_constraintTop_toBottomOf="@id/tvReceiverEmail"/>
-
-    <Button
-        android:id="@+id/btnCheck"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/etReceiverEmailAddress"
-        android:backgroundTint="@android:color/holo_orange_light"
-        android:text="测试邮箱配置"/>
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        app:layout_constraintTop_toBottomOf="@id/btnCheck"
-        android:backgroundTint="@android:color/holo_blue_bright"
-        android:text="保存邮箱配置"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/btnSave"
-        android:text="@string/mail_setting_tip"/>
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/clHeader"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="发件邮箱"
+                android:textSize="14sp"
+                android:textColor="@color/colorText" />
+            <EditText
+                android:id="@+id/etSenderEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:hint="163邮箱地址"
+                android:inputType="textEmailAddress"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="授权码"
+                android:textSize="14sp"
+                android:textColor="@color/colorText" />
+            <EditText
+                android:id="@+id/etSenderEmailAuth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:hint="SMTP授权码"
+                android:inputType="textPassword"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="收件邮箱"
+                android:textSize="14sp"
+                android:textColor="@color/colorText" />
+            <EditText
+                android:id="@+id/etReceiverEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:hint="接收通知的邮箱"
+                android:inputType="textEmailAddress"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/mail_setting_tip"
+                android:textSize="12sp" />
+            <Button
+                android:id="@+id/btnCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@android:color/holo_orange_light"
+                android:text="发送测试邮件" />
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@android:color/holo_blue_bright"
+                android:text="保存" />
+        </LinearLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -57,4 +57,27 @@ echo " task(s)      = $*"
 echo "==================================================================="
 
 chmod +x ./gradlew 2>/dev/null || true
-exec ./gradlew "$@" --no-daemon
+./gradlew "$@" --no-daemon
+
+# Gradle 在输入未变化时复用 APK；打印产物信息，避免误拿其他目录的旧包。
+show_debug=0
+show_release=0
+for build_task in "$@"; do
+  case "$build_task" in
+    assembleDebug|:app:assembleDebug) show_debug=1 ;;
+    assembleRelease|:app:assembleRelease) show_release=1 ;;
+    assemble|:app:assemble|build|:app:build) show_debug=1; show_release=1 ;;
+  esac
+done
+for build_variant in debug release; do
+  if { [ "$build_variant" = debug ] && [ "$show_debug" -eq 1 ]; } ||
+     { [ "$build_variant" = release ] && [ "$show_release" -eq 1 ]; }; then
+    apk_path="$SCRIPT_DIR/app/build/outputs/apk/$build_variant/app-$build_variant.apk"
+    if [ -f "$apk_path" ]; then
+      echo ">> APK: $apk_path"
+      ls -lh --time-style=long-iso "$apk_path"
+      sha256sum "$apk_path"
+      echo ">> 若任务显示 UP-TO-DATE，表示复用已有产物；版本号以 app/build.gradle 为准。"
+    fi
+  fi
+done

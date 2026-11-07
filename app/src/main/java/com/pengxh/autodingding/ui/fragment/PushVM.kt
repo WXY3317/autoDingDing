@@ -36,10 +36,6 @@ class PushVM: BaseViewModel() {
         pushCmd(regId, PushCoreService.MSG_SCREEN_SHOT)
     }
 
-    fun pushManualSign(regId: String){
-        pushCmd(regId, PushCoreService.MSG_MANUAL_SIGN)
-    }
-
     private fun pushCmd(regId: String, cmd: String) = launch {
         val targetRegId = regId.trim()
         if (!targetRegId.matches(Regex("[A-Za-z0-9]+"))) {

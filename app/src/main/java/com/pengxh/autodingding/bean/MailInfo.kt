@@ -48,6 +48,9 @@ class MailInfo {
             p["mail.smtp.port"] = mailServerPort
             p["mail.smtp.ssl.enable"] = "true"
             p["mail.smtp.auth"] = "true"
+            p["mail.smtp.connectiontimeout"] = "15000"
+            p["mail.smtp.timeout"] = "15000"
+            p["mail.smtp.writetimeout"] = "15000"
             return p
         }
 }

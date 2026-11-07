@@ -1,52 +1,150 @@
-# AutoDing
-+ 目前release中的包名于24年圣诞节下午又又被加入黑名单了，为了不被再一次被加入黑名单，之后将不再提供APK包的更新。请各位自行下载源码，借助 **Claude Code** 或 **OpenAI Codex** 等 AI 编程工具完成包名重构并打包，步骤如下：
+# 小助手（AutoDing）
 
-### 方式一：使用 Claude Code（推荐）
+用于定时或远程打开钉钉，并通过邮件反馈运行状态、截图和识别到的打卡通知。远程指令通过极光推送传递，邮件由接收指令的手机直接发送。
 
-1. 安装 [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code)，在项目根目录执行 `claude` 进入交互式会话
-2. 输入类似以下指令让 Claude 自动完成包名重构：
-   ```
-   请将本项目的包名从 com.pengxh.autodingding 重构为 <你的新包名，如 com.furry.rimet>，
-   需要同步修改以下位置：
-   - app/build.gradle 中的 applicationId 和 daoPackage
-   - app/src/main/AndroidManifest.xml 中的 package 声明
-   - app/agconnect-services.json 中的包名引用
-   - 所有 Kotlin/Java 源文件中的 package 声明和 import 语句
-   - （可选）app/src/main/res/values/strings.xml 中的 app_name
-   ```
-3. Claude 会自动完成全项目范围内的查找替换和文件迁移，确认修改无误后继续：
-4. 前往 [极光推送开发者后台](https://www.jiguang.cn) 创建应用，用新的 applicationId 申请推送服务，获取 **appKey** 和 **masterSecret**
-5. 复制 `jpush.local.properties.example` 为 `jpush.local.properties`，填写 `JPUSH_APPKEY` 和 `JPUSH_MASTER_SECRET`。该本地文件已加入 Git 忽略规则，请勿提交真实凭证。CI 也可通过同名环境变量提供凭证（优先于本地文件）。构建缺少凭证时会明确报错。
-6. 让 Claude 执行打包构建：
-   ```
-   请执行 gradle assembleRelease 进行 Release 打包
-   ```
-7. 将生成的 APK 分别安装到两台手机上，配置推送 regID，测试指令收发是否正常
+仓库：<https://github.com/WXY3317/autoDingDing>
 
-### 方式二：使用 OpenAI Codex
+当前应用名称为 **小助手**，安装包名为 `xcom.abc.autoding`。源码命名空间仍为 `com.pengxh.autodingding`，与安装包名用途不同，无需一起修改。
 
-1. 在 [ChatGPT](https://chat.openai.com) 或 Codex CLI 中打开本项目
-2. 输入类似的包名重构指令，Codex 会自动完成源码中的包名替换和文件结构调整
-3. 按上述步骤 4-7 配置极光推送凭证并打包测试
+> 打开钉钉不等于打卡成功。实际结果取决于钉钉登录状态、考勤规则、极速打卡设置、网络及手机运行状态，请以钉钉记录为准。
 
-> **提示：** AI 工具能自动处理跨文件的包名一致性，比手动查找替换更可靠。但仍建议在打包前检查修改结果，确保没有遗漏
--------------
-钉钉打卡，包括定时打卡和远程推送打卡,定时打卡功能是根据AutoDingDing项目修改而来，不是此项目重点，此项目主要功能在于实现远程
-打开钉钉，从而完成极速打卡，其主要是用极光推送SDK实现网络指令下发。
-建议用一台闲置的手机放在公司来打卡，另一台手机来推送打卡指令。
-需要一台打卡手机，一台自用手机，都安装上此APP后，把打卡手机的注册ID复制到推送界面推送打卡指令可以远程打开钉钉，完成极速打卡。使用须知：
-1. 请先确认好要打卡的手机通知栏监听已开启，如不开启将无法监听打卡成功的通知。
-2. 要打卡的手机保持连网，wifi或者数据都可，否则怎么收网络指令啊。
-3. 要打卡的手机最好保持打开界面放置灭屏，因为如果应用被切到后台，过上一晚不活跃有可能会被安卓系统杀掉从而不能接收打卡指令。
-4. 调起钉钉实现自动打卡，需要把打卡手机锁屏密码之类的取消掉，屏幕不用常亮，但锁屏手势、指纹、密码这些验证不能有，否则在熄屏状态下应用接收到消息也无法唤醒屏幕。
-5. 部分手机需要授权允许后台打开窗口，先在设置里面测试下能否正常打开钉钉，第一次有些手机会让授权。
-6. 将钉钉软件上下班都设置为“极速打卡”。
-7. 设置好自己的发信和收信邮箱，跳转到“钉钉”打卡成功后会发送一封打卡成功的邮件到你自己设置好的邮箱。
-8. 不要忘了，此应用只能打开钉钉，如果你钉钉没登录、被其他设备踢下线、打开时机不在考勤时间区间里，极速打卡是不会生效的。
+## 功能
 
-+ 请在邮件配置中尽量使用自己的163邮箱，申请邮箱授权码的方法请上网查询（需先在163邮箱设置中开启SMTP服务），目前邮箱只支持163邮箱，因为邮箱服务器和端口在代码里写死了，想用别的邮箱的可以找到这部分代码修改这部分设置
--------------
-可选建议
-1. 在应用权限设置里设置成允许锁屏显示，能大幅降低打卡唤醒应用时被各种不能取消的锁屏带来的干扰
-2. 在开发者模式中设置充电时不锁定屏幕，然后一直插电保持亮屏，则肯定能保证稳定运行和接收消息，可以把屏幕调到最暗来减少屏幕损耗
+| 功能 | 行为 |
+| --- | --- |
+| 定时打开 | 按应用内设置的时间打开钉钉 |
+| 推送检查 | 唤醒目标手机、打开小助手并发送运行检查邮件 |
+| 获取电量状态 | 发送电量、充电状态、机型等信息邮件，不主动亮屏 |
+| 推送截屏 | 打开小助手，等待约 2 秒，截取小助手自身页面并通过邮件发送 |
+| 推送打开钉钉 | 在目标手机打开钉钉 |
+| 打卡通知监听 | 识别钉钉通知中包含“考勤打卡”的内容，记录并发送邮件 |
 
+
+
+## 编译与安装
+
+### 环境
+
+当前项目使用：
+
+- JDK 17
+- Gradle Wrapper 8.6
+- Android Gradle Plugin 8.4.2
+- Kotlin 1.9.0
+- Android SDK Platform 33、Build Tools 34.0.0
+- 最低 Android 6.0（API 23），targetSdk 33
+
+Linux x86_64 可使用环境安装脚本。需要联网下载组件，并预先具备 `bash`、`curl`、`tar`，以及 `bsdtar`、`unzip` 或 `python3` 中的一种解压工具。
+
+```bash
+git clone git@github.com:WXY3317/autoDingDing.git
+cd autoDingDing
+bash setup-build-env.sh
+```
+
+脚本默认安装目录：
+
+```text
+JDK:         ~/opt/android-build/jdk-17
+Android SDK: ~/Android/Sdk
+```
+
+`setup-build-env.sh` 负责安装环境；`build.sh` 设置环境变量并调用项目的 Gradle Wrapper。可通过 `JAVA_HOME`、`ANDROID_HOME` 指定已有环境，安装脚本另支持 `BUILD_ROOT`。
+
+### 配置极光推送
+
+在极光后台创建 Android 应用，应用选择极光推送，登记包名 `xcom.abc.autoding`，然后在项目根目录创建本地配置：
+
+```bash
+cp jpush.local.properties.example jpush.local.properties
+```
+
+填写自己的凭据：
+
+```properties
+JPUSH_APPKEY=your_app_key
+JPUSH_MASTER_SECRET=your_master_secret
+```
+
+构建也支持同名环境变量，优先于本地文件；缺少凭据时会报错。修改安装包名时，还需同步极光后台登记的包名和 Manifest 中的推送权限、category 等引用。
+
+### 可选：预填邮箱
+
+普通构建可不提供邮箱配置，安装后在应用内填写即可。私用构建可在项目根目录创建 `mail.local.properties`：
+
+```properties
+sender.email=your_account@163.com
+sender.auth=your_smtp_authorization_code
+receiver.email=your_receiver@example.com
+```
+
+省略 `receiver.email` 时，收件邮箱默认与发件邮箱相同。默认值会在启动时填充手机上尚未配置的字段；已有非空配置会保留。因此，更新本地授权码并覆盖安装后，若手机保存的是旧值，仍需在应用内替换并保存。
+
+`jpush.local.properties`、`mail.local.properties`、`local.properties` 和 APK 构建产物均已加入 Git 忽略规则。不要把真实凭据写进源码、README 或示例配置。**这些凭据会进入相应 APK，Git 忽略不代表 APK 中的凭据不可提取，请勿公开分发带有私人授权码的安装包。**
+
+### 打包
+
+```bash
+./build.sh                            # 默认只生成 Debug 包
+./build.sh assembleRelease            # 生成 Release 包
+./build.sh assembleDebug assembleRelease # 同时生成两个包
+```
+
+环境尚未安装时，也可使用 `./build.sh --install assembleRelease`。依赖已完整缓存后，可附加 `--offline` 离线构建。
+
+| 类型 | 输出位置 |
+| --- | --- |
+| Debug | `app/build/outputs/apk/debug/app-debug.apk` |
+| Release | `app/build/outputs/apk/release/app-release.apk` |
+
+**默认执行 `./build.sh` 不会更新 Release APK。** 安装前请确认文件类型和更新时间，避免把旧 Release 包当成新包安装。
+
+构建完成后，`build.sh` 会打印 APK 的绝对路径、文件时间和 SHA-256。若任务全部显示 `UP-TO-DATE`，说明输入没有变化，Gradle 复用已有 APK，文件时间不会更新；版本号也不会自动递增，由 `app/build.gradle` 中的 `versionCode` 和 `versionName` 决定。
+
+需要强制重新执行打包任务时，可使用：
+
+```bash
+./build.sh assembleRelease --rerun-tasks
+```
+
+签名配置位于 `app/build.gradle`。自行分发时应使用自己的签名；覆盖更新同一应用需要保持签名一致。
+
+
+## 双手机使用
+
+- **A 手机**：随身携带，用于发送指令。
+- **B 手机**：安装钉钉，接收指令并执行操作。
+
+1. A、B 安装同一套极光配置构建的小助手，并保持联网。
+2. B 打开小助手，在“设置”页下方找到 Registration ID，点击复制。
+3. A 进入“设置 → 发送推送”，填入 **B 的 Registration ID**。只粘贴一次，不能包含空格、换行或多个 ID。
+4. B 先保持亮屏、打开小助手，A 点击“推送打开钉钉指令”，确认钉钉能打开。
+5. 再分别测试 B 退到桌面、熄屏后的效果。
+
+首次启动时，极光注册异步完成，Registration ID 可能暂时为空；等待联网注册后重新进入页面，必要时重启应用。卸载重装后 ID 可能变化，应重新核对。
+
+“推送平台已接受指令”仅代表平台接受请求，不代表 B 已执行成功。
+
+### B 手机设置
+
+按手机实际提供的选项允许自启动、后台运行、后台弹出界面和锁屏显示，并检查电池优化限制。通知监听用于识别打卡通知；辅助操作需要对应无障碍权限。
+
+应用可请求亮屏和解除非安全锁屏，但无法自动绕过密码、图案等身份验证。不同品牌和系统版本的后台限制不同，需在目标手机实测。
+
+已由使用者验证：荣耀 90 Pro、MagicOS 9、无锁屏密码且允许相关后台权限时，可以接收指令并从熄屏状态打开钉钉。此结果不代表所有设备都能稳定执行。
+
+使用钉钉极速打卡时，还需确保已登录、考勤时段及位置等条件满足要求。
+
+## 邮箱通知
+
+在 **B 的“设置 → 邮箱设置”** 中填写：
+
+- 发件邮箱：自己的 163 邮箱完整地址。
+- 授权码：该发件邮箱开启 SMTP 服务后生成的授权码，**不是邮箱登录密码**。
+- 收件邮箱：接收通知的邮箱，可与发件邮箱相同，也可使用其他邮箱服务。
+
+点击“保存”，再点击“发送测试邮件”，确认收件箱或垃圾箱中能收到测试邮件。
+
+当前发件服务器固定为 `smtp.163.com`，端口 `465`，使用 SSL。B 手机直接通过 SMTP 发信；极光仅负责传递远程指令，GitHub 不参与邮件发送。
+
+测试邮件、推送检查、电量查询、截屏附件和识别到的打卡通知均可能触发邮件。截图邮件当前主题为“打卡记录”，附件是小助手页面截图。打卡成功邮件依赖通知监听及代码能识别的钉钉通知，未收到邮件不能直接判定打卡失败。

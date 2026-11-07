@@ -16,7 +16,6 @@ import com.pengxh.autodingding.utils.Utils
 class MailConfFragment :Fragment() {
     private var fragmentProvider: ViewModelProvider? = null
     private lateinit var binding: FragmentMailConfBinding
-    private var configTested = false
     private lateinit var vm: MailConfVM
 
     override fun onCreateView(
@@ -42,29 +41,34 @@ class MailConfFragment :Fragment() {
         binding.etSenderEmailAuth.setText(savedFromAuth)
         binding.etReceiverEmailAddress.setText(savedToAddress)
 
+        vm.errorLiveData.observe(viewLifecycleOwner) {
+            ToastUtils.showLong(it.errorMessage)
+        }
+        vm.mailSent.observe(viewLifecycleOwner) {
+            ToastUtils.showShort("测试邮件已发送，请检查收件箱")
+        }
         binding.btnCheck.setOnClickListener {
-            val fromAddress = binding.etSenderEmailAddress.text.toString()
-            val fromAuth = binding.etSenderEmailAuth.text.toString()
-            val toAddress = binding.etReceiverEmailAddress.text.toString()
+            val fromAddress = binding.etSenderEmailAddress.text.toString().trim()
+            val fromAuth = binding.etSenderEmailAuth.text.toString().trim()
+            val toAddress = binding.etReceiverEmailAddress.text.toString().trim()
             if(fromAddress.isEmpty() || fromAuth.isEmpty() || toAddress.isEmpty()){
                 ToastUtils.showShort("配置选项缺失！")
             }else{
                 vm.sendMail(fromAddress, fromAuth, toAddress)
-                configTested = true
-                ToastUtils.showShort("已尝试发送邮件")
+                ToastUtils.showShort("正在发送测试邮件…")
             }
         }
         binding.btnSave.setOnClickListener {
-            val fromAddress = binding.etSenderEmailAddress.text.toString()
-            val fromAuth = binding.etSenderEmailAuth.text.toString()
-            val toAddress = binding.etReceiverEmailAddress.text.toString()
-            if(configTested){
+            val fromAddress = binding.etSenderEmailAddress.text.toString().trim()
+            val fromAuth = binding.etSenderEmailAuth.text.toString().trim()
+            val toAddress = binding.etReceiverEmailAddress.text.toString().trim()
+            if(fromAddress.isNotEmpty() && fromAuth.isNotEmpty() && toAddress.isNotEmpty()){
                 CacheDiskUtils.getInstance().put("senderEmail" , fromAddress)
                 CacheDiskUtils.getInstance().put("senderAuth", fromAuth)
                 Utils.saveEmailAddress(toAddress)
                 ToastUtils.showShort("保存配置成功")
             }else{
-                ToastUtils.showShort("请先进行配置测试")
+                ToastUtils.showShort("请填写完整邮箱配置")
             }
         }
         binding.ivBack.setOnClickListener {

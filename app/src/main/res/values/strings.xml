@@ -13,11 +13,7 @@
     </string>
 
     <string name="hello_blank_fragment">空白页</string>
-    <string name="mail_setting_tip">
-        请注意，如果您使用应用内自带的发件邮箱配置，即开发者本人的个人163邮箱来发送打卡通知，您的这些邮件都会被本人在163邮箱的
-        发件箱中看到，而且如果使用我的邮箱发件人数太多，我会考虑更换邮箱授权码，界时用此授权码的发邮件功能将无法正常工作。
-        因此，为了您的隐私考虑，请您最好去自己的163邮箱设置里打开smtp服务获取自己的邮箱授权码在此配置
-    </string>
+    <string name="mail_setting_tip">使用163邮箱的SMTP授权码，不是登录密码。</string>
     <string name="base_ser_desc">远程启钉基础辅助服务</string>
     <string name="ges_ser_desc">远程启钉手势服务</string>
     <string name="fore_service">前台服务</string>

@@ -17,6 +17,17 @@ class BaseApplication : Application() {
         super.onCreate()
         application = this
         Utils.init(this)
+        // Preserve saved settings; seed empty fields from private build defaults.
+        val cache = CacheDiskUtils.getInstance()
+        if (cache.getString("senderEmail", "").isNullOrBlank() && BuildConfig.DEFAULT_MAIL_SENDER.isNotBlank()) {
+            cache.put("senderEmail", BuildConfig.DEFAULT_MAIL_SENDER)
+        }
+        if (cache.getString("senderAuth", "").isNullOrBlank() && BuildConfig.DEFAULT_MAIL_AUTH.isNotBlank()) {
+            cache.put("senderAuth", BuildConfig.DEFAULT_MAIL_AUTH)
+        }
+        if (Utils.readEmailAddress().isBlank() && BuildConfig.DEFAULT_MAIL_RECEIVER.isNotBlank()) {
+            Utils.saveEmailAddress(BuildConfig.DEFAULT_MAIL_RECEIVER)
+        }
         initDataBase()
         JPushInterface.setDebugMode(true)
         JPushInterface.init(this)

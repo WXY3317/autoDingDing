@@ -46,7 +46,6 @@ import java.io.File
 
 class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
     private var menuItem: MenuItem? = null
-    private var actionJob: Job? = null
     private var pendingCommand: Intent? = null
     private var commandActivityResumed = false
     private val fragmentList: MutableList<Fragment> = ArrayList()
@@ -156,28 +155,7 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
                 )
                 MailSender().sendAccessoryMail(mailInfo)
             }
-        } else if (ACTION_MANUAL_SIGN == action) {
-            val dingAction = DingSignAction()
-            if (actionJob?.isCompleted.let { it != null && !it }) {
-                toast("有正在运行的任务")
-                return
-            } else if (AccessibilityUtil.isServiceOn(
-                    this,
-                    BaseAccessibilityService::class.java.canonicalName ?: ""
-                ).not()
-            ) {
-                toast("未开启相应的辅助服务")
-                return
-            }
-            actionJob = launchWithExpHandler {
-                dingAction.run(this@MainActivity)
-            }
-            actionJob?.invokeOnCompletion {
-                toast("执行结束")
-                val emailAddress = Utils.readEmailAddress()
-                val emailMessage = dingAction.message.toString()
-                MailSender().sendTextMail(createMail(emailAddress, emailMessage))
-            }
+
         }
     }
 
@@ -229,6 +207,5 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
         const val ACTION_SEND_MAIL = "sendMail"
         const val ACTION_LAUNCH_DING = "launchDing"
         const val ACTION_SCREENSHOT = "screenShot"
-        const val ACTION_MANUAL_SIGN = "manualSign"
     }
 }

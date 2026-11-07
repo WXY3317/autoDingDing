@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.blankj.utilcode.util.CacheDiskUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.pengxh.autodingding.databinding.FragmentPushBinding
-import com.pengxh.autodingding.utils.clickNoRepeat
 
 open class PushFragment : Fragment() {
     private var fragmentProvider: ViewModelProvider? = null
@@ -83,13 +82,7 @@ open class PushFragment : Fragment() {
                 pushVM.pushScreenShot(binding!!.etTargetRegId.text.toString())
             }
         }
-        binding!!.btnManualSign.clickNoRepeat(1000) {
-            if (binding!!.etTargetRegId.text.toString() == "") {
-                ToastUtils.showShort("注册id必须填写")
-            } else {
-                pushVM.pushManualSign(binding!!.etTargetRegId.text.toString())
-            }
-        }
+
 
     }
 
