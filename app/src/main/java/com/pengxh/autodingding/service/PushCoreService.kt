@@ -41,14 +41,14 @@ class PushCoreService : JPushMessageService() {
         val senderRegId = customMessage.title
         if (MSG_MAIL_CHECK == customMessage.message) {
             wakePhone(context)
-            unlockPhone(context){
+            launchCommand {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_SEND_MAIL)
                 context.startActivity(intent)
             }
             reply(senderRegId)
         } else if (MSG_SIGN == customMessage.message) {
             wakePhone(context)
-            unlockPhone(context){
+            launchCommand {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_LAUNCH_DING)
                 context.startActivity(intent)
             }
@@ -69,7 +69,7 @@ class PushCoreService : JPushMessageService() {
             SendMailUtil.send(emailAddress, message)
         } else if (MSG_SCREEN_SHOT == customMessage.message){
             wakePhone(context)
-            unlockPhone(context){
+            launchCommand {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_SCREENSHOT)
                 context.startActivity(intent)
             }
@@ -80,7 +80,7 @@ class PushCoreService : JPushMessageService() {
             }
         } else if (MSG_MANUAL_SIGN == customMessage.message){
             wakePhone(context)
-            unlockPhone(context){
+            launchCommand {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_MANUAL_SIGN)
                 context.startActivity(intent)
             }
@@ -88,62 +88,22 @@ class PushCoreService : JPushMessageService() {
         super.onMessage(context, customMessage)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun wakePhone(context: Context){
+    private fun wakePhone(context: Context) {
+        // Keep the CPU awake briefly; MainActivity is responsible for screen-on/unlock.
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val screenOn = powerManager.isInteractive
-        if (!screenOn) {
-            //唤醒屏幕
-            Log.d(TAG, "screen off, now waking up phone")
-            val wakeLock = powerManager.newWakeLock(
-                PowerManager.PARTIAL_WAKE_LOCK,
-                "autoDing:bright"
-            )
-            wakeLock.acquire(10000)
-            launchWithExpHandler {
-                withContext(Dispatchers.IO){
-                    delay(50000)
-                    wakeLock.release()
-                }
-            }
-        }
+        powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "autoDing:command")
+            .acquire(10_000L)
     }
 
-    private fun unlockPhone(context: Context, callback: (()->Unit)){
-        val keyGuardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (keyGuardManager.isKeyguardLocked){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d("unlock", "8.0+ version dismiss function")
-                keyGuardManager.requestDismissKeyguard(ActivityUtils.getTopActivity(), object : KeyguardManager.KeyguardDismissCallback(){
-                    override fun onDismissSucceeded() {
-                        Log.d("unlock", "success")
-                        callback.invoke()
-                    }
-
-                    override fun onDismissError() {
-                        Log.d("unlock", "error")
-                        ToastUtils.showShort("解锁错误")
-                        val emailAddress = Utils.readEmailAddress()
-                        SendMailUtil.send(emailAddress, "解锁手机异常，可能手机未设置锁屏显示，导致手机收到了消息但无法正常唤醒手机锁屏");
-//                        launchWithExpHandler {
-//                            SwipeUnlockAction().run(ActivityUtils.getTopActivity())
-//                            delay(3000)
-//                            callback.invoke()
-//                        }
-                    }
-
-                    override fun onDismissCancelled() {
-                        Log.d("unlock", "cancelled")
-                        ToastUtils.showShort("解锁取消")
-                    }
-                })
-            }else{
-                Log.d("unlock", "old version dismiss function")
-                keyGuardManager.newKeyguardLock("dismiss").disableKeyguard()
-                callback.invoke()
+    private fun launchCommand(callback: () -> Unit) {
+        // Request keyguard dismissal only after MainActivity becomes visible.
+        com.pengxh.autodingding.utils.runOnUi {
+            try {
+                callback()
+            } catch (e: Exception) {
+                Log.e(TAG, "Unable to open command activity", e)
+                ToastUtils.showLong("收到指令，但无法打开页面，请检查后台弹出界面权限")
             }
-        }else{
-            callback.invoke()
         }
     }
 

@@ -1,3 +1,5 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.import.gradle.java.home": "/home/wxy/opt/android-build/jdk-17",
+    "java.import.gradle.wrapper.enabled": true
 }

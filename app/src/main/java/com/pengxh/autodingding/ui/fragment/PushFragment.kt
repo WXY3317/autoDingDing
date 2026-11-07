@@ -35,9 +35,12 @@ open class PushFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pushVM.errorLiveData.observe(viewLifecycleOwner) {
+            if (it.errorMessage.isNotBlank()) ToastUtils.showLong(it.errorMessage)
+        }
         pushVM.pushResult.observe(viewLifecycleOwner){
             if (it.errorCode == 0){
-                ToastUtils.showShort("指令下发成功")
+                ToastUtils.showLong("推送平台已接受指令，请确认目标手机是否执行")
                 saveRegId()
             }else{
                 ToastUtils.showShort(it.messageCn)
@@ -98,7 +101,7 @@ open class PushFragment : Fragment() {
     }
 
     private fun saveRegId(){
-        val curRegId = binding!!.etTargetRegId.text.toString()
+        val curRegId = binding!!.etTargetRegId.text.toString().trim()
         CacheDiskUtils.getInstance().put("regId", curRegId)
     }
 

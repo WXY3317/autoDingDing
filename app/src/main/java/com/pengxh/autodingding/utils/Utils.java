@@ -64,14 +64,8 @@ public class Utils {
      */
     public static boolean isAppAvailable(String packageName) {
         PackageManager packageManager = mContext.getPackageManager();
-        //获取所有已安装程序的包信息
-        List<PackageInfo> packageInfos = packageManager.getInstalledPackages(0);
-        List<String> packageNames = new ArrayList<>();
-        for (int i = 0; i < packageInfos.size(); i++) {
-            String packName = packageInfos.get(i).packageName;
-            packageNames.add(packName);
-        }
-        return packageNames.contains(packageName);
+        // Match the same launcher lookup used when opening DingTalk.
+        return packageManager.getLaunchIntentForPackage(packageName) != null;
     }
 
     public static void createNotification() {

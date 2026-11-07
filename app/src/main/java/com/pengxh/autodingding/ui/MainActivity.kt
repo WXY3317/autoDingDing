@@ -1,5 +1,7 @@
 package com.pengxh.autodingding.ui
 
+import android.app.KeyguardManager
+import android.os.Build
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -45,6 +47,8 @@ import java.io.File
 class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
     private var menuItem: MenuItem? = null
     private var actionJob: Job? = null
+    private var pendingCommand: Intent? = null
+    private var commandActivityResumed = false
     private val fragmentList: MutableList<Fragment> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +77,49 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
     }
 
     private fun execAction(intent: Intent) {
+        if (!intent.hasExtra(EXTRA_ACTION)) return
+        pendingCommand = Intent(intent)
+        if (commandActivityResumed) viewBinding?.root?.post { runPendingCommand() }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        commandActivityResumed = true
+        runPendingCommand()
+    }
+
+    override fun onPause() {
+        commandActivityResumed = false
+        super.onPause()
+    }
+
+    private fun runPendingCommand() {
+        val command = pendingCommand ?: return
+        pendingCommand = null
+        val keyguard = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        if (!keyguard.isKeyguardLocked) {
+            performCommand(command)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            keyguard.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissSucceeded() {
+                    if (!isFinishing && !isDestroyed) performCommand(command)
+                }
+                override fun onDismissError() {
+                    toast("收到指令，但无法解锁，请检查锁屏显示权限并重试")
+                }
+                override fun onDismissCancelled() {
+                    toast("已取消解锁，指令未执行")
+                }
+            })
+        } else if (!keyguard.isKeyguardSecure) {
+            keyguard.newKeyguardLock("autoDing:command").disableKeyguard()
+            performCommand(command)
+        } else {
+            toast("收到指令，请先解锁手机后重新发送")
+        }
+    }
+
+    private fun performCommand(intent: Intent) {
         val action = intent.getStringExtra(EXTRA_ACTION)
         if (ACTION_SEND_MAIL == action) {
             val emailAddress = Utils.readEmailAddress()

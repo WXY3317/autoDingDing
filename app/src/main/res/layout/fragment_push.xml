@@ -47,6 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxLines="1"
+        android:singleLine="true"
+        android:inputType="textVisiblePassword"
         android:layout_marginTop="8dp"
         android:hint="输入推送目标的注册id"
         style="@style/Widget.AppCompat.EditText"
