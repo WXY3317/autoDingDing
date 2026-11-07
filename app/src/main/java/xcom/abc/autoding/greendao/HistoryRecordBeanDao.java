@@ -1,4 +1,4 @@
-package xcom.warof.chosen.greendao;
+package xcom.abc.autoding.greendao;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;

@@ -98,8 +98,8 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
                 ImageUtils.save(screenBitmap, temp, Bitmap.CompressFormat.JPEG)
                 val mailInfo = SendMailUtil.createAttachMail(
                     emailAddress, File(temp),
-                    CacheDiskUtils.getInstance().getString("senderEmail", "lttclaw@qq.com"),
-                    CacheDiskUtils.getInstance().getString("senderAuth", "hwpzapzrkmgpgaba")
+                    CacheDiskUtils.getInstance().getString("senderEmail", ""),
+                    CacheDiskUtils.getInstance().getString("senderAuth", "")
                 )
                 LogUtils.d(
                     temp,

@@ -5,7 +5,7 @@
     <!--亮屏和解锁-->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="xcom.warof.chosen.permission.JPUSH_MESSAGE" />
+    <uses-permission android:name="xcom.abc.autoding.permission.JPUSH_MESSAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -66,7 +66,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.SERVICE_MESSAGE" />
-                <category android:name="xcom.warof.chosen" />
+                <category android:name="xcom.abc.autoding" />
             </intent-filter>
         </service>
         <service android:name=".service.BaseAccessibilityService"

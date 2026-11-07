@@ -1,4 +1,4 @@
-package xcom.warof.chosen.greendao;
+package xcom.abc.autoding.greendao;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

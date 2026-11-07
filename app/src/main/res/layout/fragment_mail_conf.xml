@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="发件QQ邮箱地址，如123456@qq.com"
+        android:text="发件163邮箱地址，如123456@163.com"
         app:layout_constraintTop_toBottomOf="@id/clHeader"/>
     <EditText
         android:id="@+id/etSenderEmailAddress"
@@ -55,7 +55,7 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:layout_marginTop="8dp"
-        android:hint="发件QQ邮箱地址，如123456@qq.com"
+        android:hint="发件163邮箱地址，如123456@163.com"
         android:inputType="textEmailAddress"
         style="@style/Widget.AppCompat.EditText"
         app:layout_constraintTop_toBottomOf="@id/tvSenderEmail"/>
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="发件QQ邮箱授权码，在qq邮箱设置里获取"
+        android:text="发件163邮箱授权码，需在163邮箱设置中开启SMTP服务后获取"
         app:layout_constraintTop_toBottomOf="@id/etSenderEmailAddress"/>
     <EditText
         android:id="@+id/etSenderEmailAuth"
@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:layout_marginTop="8dp"
-        android:hint="发件QQ邮箱授权码，在qq邮箱设置里获取"
+        android:hint="发件163邮箱授权码，需在163邮箱设置中开启SMTP服务后获取"
         android:inputType="textPassword"
         style="@style/Widget.AppCompat.EditText"
         app:layout_constraintTop_toBottomOf="@id/tvSenderAuth"
@@ -84,7 +84,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="收件QQ邮箱地址，可以与发件邮箱相同"
+        android:text="收件邮箱地址，可以与发件邮箱相同"
         app:layout_constraintTop_toBottomOf="@id/etSenderEmailAuth"/>
     <EditText
         android:id="@+id/etReceiverEmailAddress"
@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:layout_marginTop="8dp"
-        android:hint="收件QQ邮箱地址，可以与发件邮箱相同"
+        android:hint="收件邮箱地址，可以与发件邮箱相同"
         android:inputType="textEmailAddress"
         style="@style/Widget.AppCompat.EditText"
         app:layout_constraintTop_toBottomOf="@id/tvReceiverEmail"/>

@@ -5,10 +5,28 @@ plugins {
     id 'kotlin-kapt'
 }
 
+// Private credentials stay in an ignored local file or CI environment variables.
+def jpushProperties = new Properties()
+def jpushFile = rootProject.file('jpush.local.properties')
+if (jpushFile.exists()) {
+    jpushFile.withInputStream { jpushProperties.load(it) }
+}
+def jpushValue = { String name ->
+    def value = System.getenv(name) ?: jpushProperties.getProperty(name)
+    if (!value?.trim()) {
+        throw new GradleException("Missing ${name}: configure jpush.local.properties or an environment variable")
+    }
+    return value
+}
+def jpushAppKey = jpushValue('JPUSH_APPKEY')
+def jpushMasterSecret = jpushValue('JPUSH_MASTER_SECRET')
+
 android {
     compileSdk 33
     defaultConfig {
-        applicationId "xcom.warof.chosen"
+        applicationId "xcom.abc.autoding"
+        buildConfigField 'String', 'JPUSH_APPKEY', groovy.json.JsonOutput.toJson(jpushAppKey)
+        buildConfigField 'String', 'JPUSH_MASTER_SECRET', groovy.json.JsonOutput.toJson(jpushMasterSecret)
         minSdkVersion 23
         targetSdkVersion 33
         versionCode 18
@@ -21,7 +39,7 @@ android {
 
         manifestPlaceholders = [
                 JPUSH_PKGNAME : applicationId,
-                JPUSH_APPKEY : "f01b8a02b66ea2d632e52e2e", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_APPKEY : jpushAppKey, //JPush 上注册的包名对应的 Appkey.
                 JPUSH_CHANNEL : "jpush", //暂时填写默认值即可.
                 VERSION_NAME : versionName,
                 CHANNEL : 'self',
@@ -81,7 +99,7 @@ android {
     greendao {
         schemaVersion 1//数据库版本号
         targetGenDir 'src/main/java'//设置DaoMaster、DaoSession、Dao目录
-        daoPackage 'xcom.warof.chosen.greendao'//设置DaoMaster、DaoSession、Dao包名
+        daoPackage 'xcom.abc.autoding.greendao'//设置DaoMaster、DaoSession、Dao包名
     }
 
     buildFeatures {

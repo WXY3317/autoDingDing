@@ -14,8 +14,8 @@ object SendMailUtil {
                 createMail(
                     toAddress,
                     emailMessage,
-                    CacheDiskUtils.getInstance().getString("senderEmail", "lttclaw@qq.com"),
-                    CacheDiskUtils.getInstance().getString("senderAuth", "hwpzapzrkmgpgaba")
+                    CacheDiskUtils.getInstance().getString("senderEmail", ""),
+                    CacheDiskUtils.getInstance().getString("senderAuth", "")
                 )
             )
         }
@@ -33,7 +33,9 @@ object SendMailUtil {
             val isSendSuccess = MailSender().sendAccessoryMail(
                 createAttachMail(
                     toAddress,
-                    file
+                    file,
+                    CacheDiskUtils.getInstance().getString("senderEmail", ""),
+                    CacheDiskUtils.getInstance().getString("senderAuth", "")
                 )
             )
         }.start()
@@ -42,11 +44,11 @@ object SendMailUtil {
     fun createMail(
         toAddress: String?,
         emailMessage: String,
-        senderEmail: String = "lttclaw@qq.com",
-        senderAuth: String = "hwpzapzrkmgpgaba"
+        senderEmail: String = "",
+        senderAuth: String = ""
     ): MailInfo {
         val mailInfo = MailInfo()
-        mailInfo.mailServerHost = "smtp.qq.com" //发送方邮箱服务器
+        mailInfo.mailServerHost = "smtp.163.com" //发送方邮箱服务器
         mailInfo.mailServerPort = "465" //发送方邮箱端口号
         mailInfo.isValidate = true
         mailInfo.userName = senderEmail // 发送者邮箱地址
@@ -66,11 +68,11 @@ object SendMailUtil {
     fun createAttachMail(
         toAddress: String,
         file: File,
-        senderEmail: String = "lttclaw@qq.com",
-        senderAuth: String = "hwpzapzrkmgpgaba"
+        senderEmail: String = "",
+        senderAuth: String = ""
     ): MailInfo {
         val mailInfo = MailInfo()
-        mailInfo.mailServerHost = "smtp.qq.com" //发送方邮箱服务器
+        mailInfo.mailServerHost = "smtp.163.com" //发送方邮箱服务器
         mailInfo.mailServerPort = "465" //发送方邮箱端口号
         mailInfo.isValidate = true
         mailInfo.userName = senderEmail // 发送者邮箱地址

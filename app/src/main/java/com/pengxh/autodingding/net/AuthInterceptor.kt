@@ -1,14 +1,14 @@
 package com.pengxh.autodingding.net
 
 import com.blankj.utilcode.util.EncodeUtils
-import com.blankj.utilcode.util.LogUtils
+import com.pengxh.autodingding.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
 object AuthInterceptor : Interceptor {
-    private const val appKey = "f01b8a02b66ea2d632e52e2e"
-    private const val masterSecret = "5e9ebea1163a6f3e2197f35d"
+    private const val appKey = BuildConfig.JPUSH_APPKEY
+    private const val masterSecret = BuildConfig.JPUSH_MASTER_SECRET
     private const val authString = "$appKey:$masterSecret"
 
     private var token = "Basic ${EncodeUtils.base64Encode2String(authString.toByteArray())}"
