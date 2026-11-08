@@ -1,5 +1,7 @@
 package com.pengxh.autodingding.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.app.KeyguardManager
 import android.os.Build
 import android.content.Intent
@@ -25,6 +27,7 @@ import com.pengxh.autodingding.actions.DingSignAction
 import com.pengxh.autodingding.adapter.FragAdapter
 import com.pengxh.autodingding.databinding.ActivityMainBinding
 import com.pengxh.autodingding.service.BaseAccessibilityService
+import com.pengxh.autodingding.service.PushKeepAliveService
 import com.pengxh.autodingding.ui.fragment.AutoDingDingFragment
 import com.pengxh.autodingding.ui.fragment.SettingsFragment
 import com.pengxh.autodingding.utils.AccessibilityUtil
@@ -34,6 +37,7 @@ import com.pengxh.autodingding.utils.SendMailUtil
 import com.pengxh.autodingding.utils.SendMailUtil.createMail
 import com.pengxh.autodingding.utils.SendMailUtil.send
 import com.pengxh.autodingding.utils.StatusBarColorUtil
+import com.pengxh.autodingding.utils.PushDiagnostics
 import com.pengxh.autodingding.utils.Utils
 import com.pengxh.autodingding.utils.launchWithExpHandler
 import com.pengxh.autodingding.utils.toast
@@ -51,6 +55,16 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
     private val fragmentList: MutableList<Fragment> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            ContextCompat.startForegroundService(this, Intent(this, PushKeepAliveService::class.java))
+        } catch (e: Exception) {
+            Log.e("PushKeepAliveService", "Unable to start foreground service", e)
+            PushDiagnostics.execution(this, "前台推送服务启动失败：${e.javaClass.simpleName}")
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
         this.window.addFlags(
             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
@@ -78,6 +92,7 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
     private fun execAction(intent: Intent) {
         if (!intent.hasExtra(EXTRA_ACTION)) return
         pendingCommand = Intent(intent)
+        PushDiagnostics.execution(this, "指令页面已启动")
         if (commandActivityResumed) viewBinding?.root?.post { runPendingCommand() }
     }
 
@@ -99,14 +114,17 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
         if (!keyguard.isKeyguardLocked) {
             performCommand(command)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PushDiagnostics.execution(this, "正在请求解除锁屏")
             keyguard.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
                 override fun onDismissSucceeded() {
                     if (!isFinishing && !isDestroyed) performCommand(command)
                 }
                 override fun onDismissError() {
+                    PushDiagnostics.execution(this@MainActivity, "解除锁屏失败")
                     toast("收到指令，但无法解锁，请检查锁屏显示权限并重试")
                 }
                 override fun onDismissCancelled() {
+                    PushDiagnostics.execution(this@MainActivity, "解除锁屏已取消")
                     toast("已取消解锁，指令未执行")
                 }
             })
@@ -120,6 +138,7 @@ class MainActivity : AndroidxBaseActivity<ActivityMainBinding?>() {
 
     private fun performCommand(intent: Intent) {
         val action = intent.getStringExtra(EXTRA_ACTION)
+        PushDiagnostics.execution(this, "开始执行：$action")
         if (ACTION_SEND_MAIL == action) {
             val emailAddress = Utils.readEmailAddress()
             Log.d("action", "sending email:$emailAddress")

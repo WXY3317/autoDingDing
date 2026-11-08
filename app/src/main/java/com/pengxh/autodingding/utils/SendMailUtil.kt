@@ -6,6 +6,18 @@ import com.pengxh.autodingding.bean.MailInfo
 import java.io.File
 
 object SendMailUtil {
+    /** Call from a worker thread; returns the SMTP result to the caller. */
+    fun sendCustomMail(toAddress: String, subject: String, content: String): Result<Unit> = runCatching {
+        val senderEmail = CacheDiskUtils.getInstance().getString("senderEmail", "").orEmpty()
+        val senderAuth = CacheDiskUtils.getInstance().getString("senderAuth", "").orEmpty()
+        require(toAddress.isNotBlank() && senderEmail.isNotBlank() && senderAuth.isNotBlank()) {
+            "请先配置发件邮箱、授权码和目标邮箱"
+        }
+        val mailInfo = createMail(toAddress, content, senderEmail, senderAuth)
+        mailInfo.subject = subject
+        MailSender().sendTextMail(mailInfo)
+    }
+
     fun send(
         toAddress: String?, emailMessage: String
     ) {

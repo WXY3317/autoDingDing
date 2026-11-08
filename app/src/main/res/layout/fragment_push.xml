@@ -42,53 +42,83 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
-        android:id="@+id/etTargetRegId"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:inputType="textVisiblePassword"
-        android:layout_marginTop="8dp"
-        android:hint="输入推送目标的注册id"
-        style="@style/Widget.AppCompat.EditText"
-        app:layout_constraintTop_toBottomOf="@id/clHeader"/>
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/clHeader"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <Button
-        android:id="@+id/btnCheck"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/etTargetRegId"
-        android:backgroundTint="@color/sky"
-        android:text="推送检查指令(会点亮屏幕)"/>
-    <Button
-        android:id="@+id/btnStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btnCheck"
-        android:backgroundTint="@color/cyan"
-        android:text="推送获取手机电量状态指令(不会亮屏)"/>
-    <Button
-        android:id="@+id/btnScreenShot"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/btnStatus"
-        android:backgroundTint="@color/orange"
-        android:text="推送截屏指令(会亮屏)"/>
-    <Button
-        android:id="@+id/btnPush"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        app:layout_constraintTop_toBottomOf="@id/btnScreenShot"
-        android:backgroundTint="@color/weChatGreen"
-        android:text="推送打开钉钉指令"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <EditText
+                android:id="@+id/etTargetRegId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:inputType="textVisiblePassword"
+                android:hint="输入推送目标的注册 ID"
+                style="@style/Widget.AppCompat.EditText" />
+
+            <Button
+                android:id="@+id/btnCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/sky"
+                android:text="推送检查指令（会点亮屏幕）" />
+
+            <Button
+                android:id="@+id/btnStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/cyan"
+                android:text="推送获取电量状态（不会亮屏）" />
+
+            <Button
+                android:id="@+id/btnScreenShot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/orange"
+                android:text="推送截屏指令（会亮屏）" />
+
+            <Button
+                android:id="@+id/btnPush"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/weChatGreen"
+                android:text="推送打开钉钉指令" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="邮件检测（不使用极光推送）"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etMailTarget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:hint="B 手机接收邮件的邮箱地址" />
+
+            <Button
+                android:id="@+id/btnMailRunning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="发送“检测running”测试邮件" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

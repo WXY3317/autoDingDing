@@ -36,7 +36,7 @@ object RomUtils {
             return isVivoBgStartPermissionAllowed(context)
         }
 
-        if (isOppo() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return Settings.canDrawOverlays(context)
         }
         return true

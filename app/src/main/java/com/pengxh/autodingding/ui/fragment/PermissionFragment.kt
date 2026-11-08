@@ -1,6 +1,8 @@
 package com.pengxh.autodingding.ui.fragment
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import com.blankj.utilcode.util.IntentUtils
@@ -41,7 +43,14 @@ class PermissionFragment : BaseVmFragment<PermissionFragmentBinding>() {
         }
 
         binding.rlBgStart.clickNoRepeat {
-            activity?.startActivity(IntentUtils.getLaunchAppDetailsSettingsIntent(context?.packageName))
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                !RomUtils.isBackgroundStartAllowed(requireContext())) {
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${requireContext().packageName}"))
+            } else {
+                IntentUtils.getLaunchAppDetailsSettingsIntent(requireContext().packageName)
+            }
+            activity?.startActivity(intent)
         }
     }
 

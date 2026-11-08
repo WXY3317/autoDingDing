@@ -10,7 +10,7 @@ import android.os.PowerManager
 import android.util.Log
 import cn.jpush.android.api.CustomMessage
 import cn.jpush.android.api.JPushInterface
-import cn.jpush.android.service.JPushMessageService
+import cn.jpush.android.service.JPushMessageReceiver
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.CacheDiskUtils
@@ -26,6 +26,7 @@ import com.pengxh.autodingding.net.RetrofitManager
 import com.pengxh.autodingding.net.api.PushApi
 import com.pengxh.autodingding.ui.MainActivity
 import com.pengxh.autodingding.utils.SendMailUtil
+import com.pengxh.autodingding.utils.PushDiagnostics
 import com.pengxh.autodingding.utils.Utils
 import com.pengxh.autodingding.utils.launchWithExpHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -33,26 +34,40 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-class PushCoreService : JPushMessageService() {
+class PushCoreService : JPushMessageReceiver() {
+    override fun onConnected(context: Context, connected: Boolean) {
+        PushDiagnostics.connection(context, connected)
+        super.onConnected(context, connected)
+    }
+
+    override fun onRegister(context: Context, registrationId: String) {
+        CacheDiskUtils.getInstance().put("pushRegId", registrationId)
+        super.onRegister(context, registrationId)
+    }
+
     override fun onMessage(context: Context, customMessage: CustomMessage) {
         Log.d(TAG, customMessage.message)
+        if (customMessage.message != MSG_REPLY) {
+            PushDiagnostics.received(context, customMessage.message)
+        }
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val senderRegId = customMessage.title
         if (MSG_MAIL_CHECK == customMessage.message) {
             wakePhone(context)
-            launchCommand {
+            launchCommand(context) {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_SEND_MAIL)
                 context.startActivity(intent)
             }
             reply(senderRegId)
         } else if (MSG_SIGN == customMessage.message) {
             wakePhone(context)
-            launchCommand {
+            launchCommand(context) {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_LAUNCH_DING)
                 context.startActivity(intent)
             }
         } else if (MSG_STATUS_REPORT == customMessage.message){
+            PushDiagnostics.execution(context, "开始发送状态邮件")
             val emailAddress = Utils.readEmailAddress()
             val manager = context.getSystemService(AndroidxBaseActivity.BATTERY_SERVICE) as BatteryManager
             val charging = manager.isCharging
@@ -69,7 +84,7 @@ class PushCoreService : JPushMessageService() {
             SendMailUtil.send(emailAddress, message)
         } else if (MSG_SCREEN_SHOT == customMessage.message){
             wakePhone(context)
-            launchCommand {
+            launchCommand(context) {
                 intent.putExtra(MainActivity.EXTRA_ACTION, MainActivity.ACTION_SCREENSHOT)
                 context.startActivity(intent)
             }
@@ -90,13 +105,14 @@ class PushCoreService : JPushMessageService() {
             .acquire(10_000L)
     }
 
-    private fun launchCommand(callback: () -> Unit) {
+    private fun launchCommand(context: Context, callback: () -> Unit) {
         // Request keyguard dismissal only after MainActivity becomes visible.
         com.pengxh.autodingding.utils.runOnUi {
             try {
                 callback()
             } catch (e: Exception) {
                 Log.e(TAG, "Unable to open command activity", e)
+                PushDiagnostics.execution(context, "打开页面失败：${e.javaClass.simpleName}")
                 ToastUtils.showLong("收到指令，但无法打开页面，请检查后台弹出界面权限")
             }
         }

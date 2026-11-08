@@ -3,15 +3,22 @@ package com.pengxh.autodingding.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.CacheDiskUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.pengxh.autodingding.databinding.FragmentPushBinding
+import com.pengxh.autodingding.utils.SendMailUtil
+import com.pengxh.autodingding.utils.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class PushFragment : Fragment() {
     private var fragmentProvider: ViewModelProvider? = null
@@ -49,6 +56,9 @@ open class PushFragment : Fragment() {
         if (savedRegId != null){
             binding!!.etTargetRegId.setText(savedRegId)
         }
+        val savedMailTarget = CacheDiskUtils.getInstance().getString("runningMailTarget", "")
+        binding!!.etMailTarget.setText(savedMailTarget.takeUnless { it.isNullOrBlank() }
+            ?: Utils.readEmailAddress())
         binding!!.ivBack.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .hide(this)
@@ -80,6 +90,36 @@ open class PushFragment : Fragment() {
                 ToastUtils.showShort("注册id必须填写")
             } else {
                 pushVM.pushScreenShot(binding!!.etTargetRegId.text.toString())
+            }
+        }
+        binding!!.btnMailRunning.setOnClickListener {
+            val target = binding!!.etMailTarget.text.toString().trim()
+            if (!Patterns.EMAIL_ADDRESS.matcher(target).matches()) {
+                ToastUtils.showShort("请填写 B 手机接收邮件的邮箱地址")
+                return@setOnClickListener
+            }
+            val cache = CacheDiskUtils.getInstance()
+            if (cache.getString("senderEmail", "").isNullOrBlank() ||
+                cache.getString("senderAuth", "").isNullOrBlank()) {
+                ToastUtils.showLong("请先在 A 手机的邮箱设置中填写发件邮箱和 SMTP 授权码")
+                return@setOnClickListener
+            }
+            CacheDiskUtils.getInstance().put("runningMailTarget", target)
+            binding!!.btnMailRunning.isEnabled = false
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    SendMailUtil.sendCustomMail(
+                        target,
+                        "检测running",
+                        "请回复小助手运行状态。"
+                    )
+                }
+                binding?.btnMailRunning?.isEnabled = true
+                if (result.isSuccess) {
+                    ToastUtils.showLong("检测邮件已发送，等待 B 手机回复")
+                } else {
+                    ToastUtils.showLong("检测邮件发送失败，请检查邮箱配置和网络")
+                }
             }
         }
 

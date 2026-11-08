@@ -1,11 +1,14 @@
 package com.pengxh.autodingding.ui.fragment
 
+import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import cn.jpush.android.api.JPushInterface
 import com.blankj.utilcode.util.CacheDiskUtils
 import com.blankj.utilcode.util.IntentUtils
@@ -17,9 +20,11 @@ import com.pengxh.autodingding.R
 import com.pengxh.autodingding.actions.DingSignAction
 import com.pengxh.autodingding.databinding.FragmentSettingsBinding
 import com.pengxh.autodingding.service.NotificationMonitorService
+import com.pengxh.autodingding.service.IncomingCallReceiver
 import com.pengxh.autodingding.ui.HistoryRecordActivity
 import com.pengxh.autodingding.ui.fragment.PushFragment.Companion.newInstance
 import com.pengxh.autodingding.utils.Constant
+import com.pengxh.autodingding.utils.PushDiagnostics
 import com.pengxh.autodingding.utils.Utils
 import com.pengxh.autodingding.utils.launchWithExpHandler
 import com.pengxh.autodingding.utils.toast
@@ -28,6 +33,13 @@ import kotlinx.coroutines.Job
 
 class SettingsFragment : AndroidxBaseFragment<FragmentSettingsBinding?>(), View.OnClickListener {
     private var actionJob: Job? = null
+
+    private val phonePermissionLauncher = registerForActivityResult(RequestPermission()) { granted ->
+        requireContext().getSharedPreferences(IncomingCallReceiver.PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean(IncomingCallReceiver.KEY_ENABLED, granted).apply()
+        viewBinding?.phoneTriggerCheckBox?.isChecked = granted
+        ToastUtils.showShort(if (granted) "来电触发已开启" else "未获得电话状态权限，来电触发未开启")
+    }
 
     override fun initData() {
         val historyBeanDao = daoSession!!.historyRecordBeanDao
@@ -69,6 +81,28 @@ class SettingsFragment : AndroidxBaseFragment<FragmentSettingsBinding?>(), View.
             startNotificationMonitorService()
         }
         viewBinding!!.tvRegValue.text = JPushInterface.getRegistrationID(context)
+        viewBinding!!.phoneTriggerCheckBox.setOnClickListener {
+            val enabled = viewBinding!!.phoneTriggerCheckBox.isChecked
+            if (enabled && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+                viewBinding!!.phoneTriggerCheckBox.isChecked = false
+                phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+            } else {
+                requireContext().getSharedPreferences(IncomingCallReceiver.PREFS_NAME, Context.MODE_PRIVATE)
+                    .edit().putBoolean(IncomingCallReceiver.KEY_ENABLED, enabled).apply()
+            }
+        }
+        viewBinding!!.tvPushDiagnostics.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("推送诊断")
+                .setMessage(PushDiagnostics.report(requireContext()))
+                .setPositiveButton("关闭", null)
+                .setNeutralButton("重新启用推送") { _, _ ->
+                    JPushInterface.resumePush(requireContext())
+                    ToastUtils.showShort("已请求重新启用，请稍后重新发送指令并查看诊断")
+                }
+                .show()
+        }
         viewBinding!!.btnCopy.setOnClickListener(this)
         viewBinding!!.btnTestLaunchDing.setOnClickListener(this)
         viewBinding!!.emailLayout.setOnClickListener(this)
@@ -78,6 +112,16 @@ class SettingsFragment : AndroidxBaseFragment<FragmentSettingsBinding?>(), View.
         viewBinding!!.testLayout.setOnClickListener(this)
         viewBinding!!.rlVersion.setOnClickListener(this)
         viewBinding!!.permissionLayout.setOnClickListener(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewBinding?.tvRegValue?.text = JPushInterface.getRegistrationID(context)
+        val granted = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_PHONE_STATE) ==
+            PackageManager.PERMISSION_GRANTED
+        val enabled = requireContext().getSharedPreferences(IncomingCallReceiver.PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(IncomingCallReceiver.KEY_ENABLED, false)
+        viewBinding?.phoneTriggerCheckBox?.isChecked = granted && enabled
     }
 
     //切换通知监听器服务

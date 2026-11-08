@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="后台启动界面"
+                android:text="后台弹出界面（悬浮窗）"
                 android:textColor="@color/colorText"
                 android:textSize="18sp" />
 
